@@ -1,0 +1,110 @@
+div.main{
+	width: 80%;
+	min-height: 100%;
+	min-height:400px;
+	max-width: 1260px;/* a max-width may be desirable to keep this layout from getting too wide on a large monitor. This keeps line length more readable. IE6 does not respect this declaration. */
+	min-width: 780px;/* a min-width may be desirable to keep this layout from getting too narrow. This keeps line length more readable in the side columns. IE6 does not respect this declaration. */
+	background: #DFD;
+	margin-top: 0;
+	margin-right: auto;
+	margin-bottom: 0;
+	margin-left: auto;
+}
+
+div.section{
+	background: silver;
+	min-height: 200px;
+	height:auto !important; 
+	height: 200px;
+	border: solid blue 4px;
+}
+
+div.index-section{
+	background: silver;
+	min-height: 200px;
+	height:auto !important; 
+	height: 200px;
+	border: solid blue 4px;
+}
+div.a-goal-section{
+	background: silver;
+	min-height: 150px;
+	height:auto !important; 
+	height: 150px;
+	border: solid red 4px;
+	overflow: hidden;
+}
+div.b-goal-section {
+	background: silver;
+	min-height: 100px;
+	height:auto !important; 
+	height: 100px;
+	border: solid brown 4px;
+	overflow: hidden;
+}
+div.c-goal-section{
+	background: silver;
+	min-height: 100px;
+	height:auto !important; 
+	height: 100px;
+	border: solid yellow 4px;
+	overflow: hidden;
+}
+div.d-goal-section{
+	background: silver;
+	min-height: 100px;
+	height:auto !important; 
+	height: 100px;
+	border: solid red 4px;
+	overflow: hidden;
+}
+
+div.goal-type-header{ 
+	margin: 0; 
+	text-align: right;
+	background: #aba;
+	font-size: 20px; 
+	font-variant: small-caps;
+	padding: 0px 50px 0px 0px;
+}
+
+div.index-element{
+	position:relative;
+	float: left;
+	left:0;
+	width:100%;
+	background: white;
+}
+
+div.a-element{
+	background-image: url(hoi.png); 
+	
+	width: 400px;
+	float: left;
+	left:0;
+	width:50%;
+	background: white;
+	border: solid green 3px;
+}
+
+div.b-element{
+	position:relative;
+	float: left;
+	left:0;
+	width:25%;
+	background: white;
+}
+
+div.c-element{
+	position:relative;
+	float: left;
+	left:0;
+	width:20%;
+	background: white;
+}
+
+div.example-plot{
+
+	background: white;
+	position:relative;
+}
