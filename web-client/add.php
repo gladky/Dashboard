@@ -15,14 +15,12 @@
 
 <div class="main">
 <div class="header">Dashboard</div>
-	<p class="text-header">Cel projektu</p>
-	<p class="simple-text">Projekt stworzony by poprawić systematyczność. Poprzez prezentacje wszystkich prowadzonych przez użytkownika projektów pomaga zapanować nad całością.</p>
-
-	<p class="text-header">Aktywności</p>
-	<ul class="simple-list">
-		<li><a href="main.php">Przegląd projektów</a></li>
-		<li><a href="add.php">Dodaj wpis</a></li>
-	</ul>
+<form name="input" action="add_entry.php" method="get">
+Użytkownik: <input type="text" name="user">
+Projekt: <input type="text" name="project">
+Ilosc: <input type="text" name="amount">
+<input type="submit" value="Submit">
+</form>
 	
 </div>
 

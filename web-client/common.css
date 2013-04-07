@@ -59,6 +59,15 @@ div.d-goal-section{
 	overflow: hidden;
 }
 
+div.header{ 
+	margin: 0; 
+	text-align: right;
+	background: #aba;
+	font-size: 28px; 
+	font-variant: small-caps;
+	padding: 0px 50px 0px 0px;
+}
+
 div.goal-type-header{ 
 	margin: 0; 
 	text-align: right;
@@ -107,4 +116,19 @@ div.example-plot{
 
 	background: white;
 	position:relative;
+}
+
+p.text-header{
+	font-size: 20px; 
+	font-variant: small-caps;	
+	padding: 0px 50px 0px 20px;
+}
+
+p.simple-text{
+	font-size: 16px; 
+	padding: 0px 50px 0px 30px;
+}
+ul.simple-list{
+	font-size: 16px; 
+	padding: 0px 50px 0px 60px;
 }
