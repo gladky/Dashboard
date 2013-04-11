@@ -15,7 +15,9 @@ public class ClientThread implements Runnable {
 	@Override
 	public void run() {
 		String currentAnswer;
-		while (connectionSocket.isConnected()) {
+		boolean read = true;
+		System.out.println("New Client!!");
+		while (connectionSocket.isConnected() && read) {	
 			try {
 				System.out.println("Getting request!");
 				request = communicationUtil.receiveFromClient(connectionSocket);
@@ -26,6 +28,7 @@ public class ClientThread implements Runnable {
 							currentAnswer);
 				}
 				else{
+					read = false;
 					break;
 				}
 			} catch (IOException e) {

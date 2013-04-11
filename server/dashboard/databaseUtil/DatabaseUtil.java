@@ -2,6 +2,7 @@ package dashboard.databaseUtil;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,7 +30,7 @@ public class DatabaseUtil {
 		System.out.println("Oracle JDBC Driver Registered!");
 		try {
 			connection = DriverManager.getConnection(
-					"jdbc:oracle:thin:@localhost:1521:XE", "dashboard",
+					"jdbc:oracle:thin:@localhost:1521/XE", "dashboard",
 					"dashboard");
 		} catch (SQLException e) {
 			System.out.println("Connection Failed! Check output console");
@@ -51,6 +52,8 @@ public class DatabaseUtil {
 			answer = getUserInfo(request);
 		else if (request.matches("getGoalTypeInfo=.*"))
 			answer = getGoalTypeProjects(request);
+		else if (request.matches("addEntry=.*"))
+			answer = addEntry(request);
 		return answer;
 	}
 
@@ -70,7 +73,7 @@ public class DatabaseUtil {
 		Date date;
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		Calendar cal = Calendar.getInstance();
-		
+
 		try {
 			statement = connection.createStatement();
 			ResultSet resultSet = statement
@@ -99,51 +102,56 @@ public class DatabaseUtil {
 
 			Date prevDate = null;
 			int diffInDays;
-			float amount = 0, prevAmount =0;
+			float amount = 0, prevAmount = 0;
 			String dateAsString;
 			float currSum = 0;
 			while (resultSet.next()) {
 				if (!answer.equals("["))
 					answer += ",";
-				
-				
-				
+
 				date = resultSet.getDate(1);
-				if(prevDate != null){
-					diffInDays = (int) ((date.getTime() - prevDate.getTime())/(1000 * 60 * 60 * 24));
-					for(int i = 0; i<diffInDays; i++){
-						if(i+1!=diffInDays) answer += "['";
-						System.out.println("DEBUG - counting, diff=" + diffInDays + " curr i=" + i );
-						//TODO add date step	
-							cal.setTime(prevDate); 
-							cal.add(Calendar.DATE, 1*(i+1));
-							if(i+1!=diffInDays) answer +=  simpleDateFormat.format(cal.getTime());
-							if(i+1!=diffInDays) answer += "',";
-						
+				if (prevDate != null) {
+					diffInDays = (int) ((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+					for (int i = 0; i < diffInDays; i++) {
+						if (i + 1 != diffInDays)
+							;//answer += "['";
+						System.out.println("DEBUG - counting, diff="
+								+ diffInDays + " curr i=" + i);
+						// TODO add date step
+						cal.setTime(prevDate);
+						cal.add(Calendar.DATE, 1 * (i + 1));
+						if (i + 1 != diffInDays)
+							;//answer += simpleDateFormat.format(cal.getTime());
+						if (i + 1 != diffInDays)
+							;//answer += "',";
+
 						// add amount step
-							int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-							if(dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY)
-								currSum -=  4;
-							if(i+1!=diffInDays) answer += currSum;
-							if(i+1!=diffInDays) answer += "],";
+						int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+						if (dayOfWeek != Calendar.SATURDAY
+								&& dayOfWeek != Calendar.SUNDAY)
+							currSum -= 4;
+						if (i + 1 != diffInDays)
+							;//answer += currSum;
+						if (i + 1 != diffInDays)
+							;//answer += "],";
 					}
 				}
-				
+
 				System.out.println("DEBUG - normal");
-				//date section
-					dateAsString = simpleDateFormat.format(date);
-					answer += "[";
-					answer += "'";
-					answer += dateAsString;
-					answer += "',";
-				
-				//amount section
-					amount = resultSet.getFloat(2);
-					currSum += amount;
-					answer += currSum;
-					answer += "]";
-					
-					prevDate = date;
+				// date section
+				dateAsString = simpleDateFormat.format(date);
+				answer += "[";
+				answer += "'";
+				answer += dateAsString;
+				answer += "',";
+
+				// amount section
+				amount = resultSet.getFloat(2);
+				currSum += amount;
+				answer += currSum;
+				answer += "]";
+
+				prevDate = date;
 			}
 			answer += "]";
 
@@ -240,13 +248,69 @@ public class DatabaseUtil {
 
 			resultSet = statement
 					.executeQuery("select name from projects where owner_id = "
-							+ userId);
+							+ userId + "and priority like '" + type + "'" );
 			while (resultSet.next()) {
 				projectName = resultSet.getString(1);
 				if (!(answer.equals("")))
 					answer += ",";
 				answer += projectName;
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return answer;
+	}
+
+	private String addEntry(String request) {
+		String answer = "";
+		Statement statement;
+		String user;
+		String project;
+		String amount;
+
+		int userId = 0;
+		int projectId = 0;
+
+		int index = request.indexOf("=");
+		int index2 = request.indexOf("@");
+		int index3 = request.indexOf("$");
+
+		user = request.substring(index + 1, index2);
+		project = request.substring(index2 + 1, index3);
+		amount = request.substring(index3 + 1);
+
+		System.out.println("Added entry for user " + user + " to project "
+				+ project + " and amount " + amount);
+
+		try {
+			statement = connection.createStatement();
+			ResultSet resultSet = statement
+					.executeQuery("select user_id from users where name like '"
+							+ user + "'");
+			while (resultSet.next()) {
+				userId = Integer.parseInt(resultSet.getString(1));
+				System.out.println("UserId= " + userId);
+			}
+
+			resultSet = statement
+					.executeQuery("select project_id from projects where name like '"
+							+ project + "'");
+			while (resultSet.next()) {
+				projectId = resultSet.getInt(1);
+				System.out.println("ProjectId= " + projectId);
+			}
+
+			
+			String sqlStmt = "insert into entries (entry_id, project_id, amount, entry_date, owner_id)"
+							+ "values (entries_seq.nextval,"+projectId+","+amount+",?,"+userId+")";
+			
+			System.out.println(sqlStmt);
+			PreparedStatement pStmt = connection.prepareStatement(sqlStmt);
+			pStmt.setDate(1, new java.sql.Date((new Date()).getTime()));
+			pStmt.executeUpdate();
+			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;

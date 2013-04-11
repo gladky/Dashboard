@@ -44,11 +44,11 @@
 			
 			$projectNames = explode(",", $projectNamesInfo);
 		
-		
 			for($i =0; $i<$typesCount[0]; $i++){
 				echo '<div class="a-element">';
 				$name = "chart-a" . $i;
 				$projectName = trim($projectNames[$i]);
+				
 				$width= 470; $height = 180; 
 				include("type-a1.php");
 				echo '</div>';
@@ -72,11 +72,11 @@
 			
 			$projectNames = explode(",", $projectNamesInfo);
 		
-		
 			for($i =0; $i<$typesCount[1]; $i++){
 				echo '<div class="b-element">';
 				$name = "chart-b" . $i;
 				$projectName = trim($projectNames[$i]);
+				
 				$width= 230; $height = 150; 
 				include("type-a1.php");
 				echo '</div>';

@@ -3,6 +3,7 @@
 echo '
 <div class="example-plot" id="' . $name . '" style="width: ' . $width .'px; height: ' . $height .'px;"></div>
 ';
+
   ?>
 <!-- Example scripts go here -->
 

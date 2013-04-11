@@ -20,42 +20,42 @@ div.section{
 }
 
 div.index-section{
-	background: silver;
+	background: #fcfcfc;
 	min-height: 200px;
 	height:auto !important; 
 	height: 200px;
-	border: solid blue 4px;
+	border: solid blue 0px;
 }
 div.a-goal-section{
-	background: silver;
+	background: #fcfcfc;
 	min-height: 150px;
 	height:auto !important; 
 	height: 150px;
-	border: solid red 4px;
+	border: solid red 0px;
 	overflow: hidden;
 }
 div.b-goal-section {
-	background: silver;
+	background: #fcfcfc;
 	min-height: 100px;
 	height:auto !important; 
 	height: 100px;
-	border: solid brown 4px;
+	border: solid brown 0px;
 	overflow: hidden;
 }
 div.c-goal-section{
-	background: silver;
+	background: #fcfcfc;
 	min-height: 100px;
 	height:auto !important; 
 	height: 100px;
-	border: solid yellow 4px;
+	border: solid yellow 0px;
 	overflow: hidden;
 }
 div.d-goal-section{
-	background: silver;
+	background: #fcfcfc;
 	min-height: 100px;
 	height:auto !important; 
 	height: 100px;
-	border: solid red 4px;
+	border: solid red 0px;
 	overflow: hidden;
 }
 
@@ -93,7 +93,7 @@ div.a-element{
 	left:0;
 	width:50%;
 	background: white;
-	border: solid green 3px;
+	border: solid green 0px;
 }
 
 div.b-element{
