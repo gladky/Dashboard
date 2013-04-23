@@ -7,15 +7,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+
+import dashboard.databaseUtil.complex_types.ProjectDataWithDateAndAmount;
+import dashboard.databaseUtil.complex_types.ProjectInfoWithNameAndHPW;
 
 public class DatabaseUtil {
 
 	Connection connection = null;
+	DatabaseDataGate databaseDG;
 
 	public DatabaseUtil() {
 		connect();
+		databaseDG = new DatabaseDataGate();
+
 	}
 
 	public void connect() {
@@ -49,7 +57,7 @@ public class DatabaseUtil {
 		if (request.matches(".*#.*"))
 			answer = getChart(request);
 		else if (request.matches("getUserInfo=.*"))
-			answer = getUserInfo(request);
+			answer = getUserProjectsInfo(request);
 		else if (request.matches("getGoalTypeInfo=.*"))
 			answer = getGoalTypeProjects(request);
 		else if (request.matches("addEntry=.*"))
@@ -67,162 +75,144 @@ public class DatabaseUtil {
 
 		System.out.println("Requested user= " + user + ", project= " + project);
 
-		int userId = 0, projectId = 0;
+		int userId = 0, projectId = 0, hoursPerWeek = 0;
 		String answer = "[";
 
 		Date date;
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		Calendar cal = Calendar.getInstance();
 
-		try {
-			statement = connection.createStatement();
-			ResultSet resultSet = statement
-					.executeQuery("select user_id from users where name like '"
-							+ user + "'");
-			while (resultSet.next()) {
-				userId = Integer.parseInt(resultSet.getString(1));
-				System.out.println("UserId= " + userId);
-			}
+		userId = databaseDG.getUserIdByName(connection, user);
+		ProjectInfoWithNameAndHPW projectInfo = databaseDG
+				.getProjectInfoWithNameAndHPW(connection, project);
 
-			resultSet = statement
-					.executeQuery("select project_id from projects where name like '"
-							+ project + "'");
+		projectId = projectInfo.projectId;
+		hoursPerWeek = projectInfo.HPW;
 
-			while (resultSet.next()) {
-				projectId = Integer.parseInt(resultSet.getString(1));
-				System.out.println("ProjectId= " + projectId);
-			}
+		List<ProjectDataWithDateAndAmount> projectData = databaseDG
+				.getProjectDataWithDateAndAmount(connection, userId, projectId);
 
-			resultSet = statement
-					.executeQuery("select  entry_date, amount from entries where project_id = "
-							+ projectId
-							+ " and owner_id = "
-							+ userId
-							+ "order by entry_date");
+		Date prevDate = null;
+		int diffInDays;
+		float amount = 0;
+		String dateAsString;
+		float currSum = 0;
 
-			Date prevDate = null;
-			int diffInDays;
-			float amount = 0, prevAmount = 0;
-			String dateAsString;
-			float currSum = 0;
-			while (resultSet.next()) {
-				if (!answer.equals("["))
-					answer += ",";
+		for (int p = 0; p < projectData.size(); p++) {
+			if (!answer.equals("["))
+				answer += ",";
 
-				date = resultSet.getDate(1);
-				if (prevDate != null) {
-					diffInDays = (int) ((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
-					for (int i = 0; i < diffInDays; i++) {
-						if (i + 1 != diffInDays)
-							;//answer += "['";
-						System.out.println("DEBUG - counting, diff="
-								+ diffInDays + " curr i=" + i);
-						// TODO add date step
-						cal.setTime(prevDate);
-						cal.add(Calendar.DATE, 1 * (i + 1));
-						if (i + 1 != diffInDays)
-							;//answer += simpleDateFormat.format(cal.getTime());
-						if (i + 1 != diffInDays)
-							;//answer += "',";
+			date = projectData.get(p).date;
+			if (prevDate != null) {
+				diffInDays = (int) ((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+				for (int i = 0; i < diffInDays; i++) {
+					if (i + 1 != diffInDays)
+						;// answer += "['";
+					System.out.println("DEBUG - counting, diff=" + diffInDays
+							+ " curr i=" + i);
+					// TODO add date step
+					cal.setTime(prevDate);
+					cal.add(Calendar.DATE, 1 * (i + 1));
+					if (i + 1 != diffInDays)
+						;// answer +=
+							// simpleDateFormat.format(cal.getTime());
+					if (i + 1 != diffInDays)
+						;// answer += "',";
 
-						// add amount step
-						int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-						if (dayOfWeek != Calendar.SATURDAY
-								&& dayOfWeek != Calendar.SUNDAY)
-							currSum -= 4;
-						if (i + 1 != diffInDays)
-							;//answer += currSum;
-						if (i + 1 != diffInDays)
-							;//answer += "],";
-					}
+					// add amount step
+					int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+					if (dayOfWeek != Calendar.SATURDAY
+							&& dayOfWeek != Calendar.SUNDAY)
+						currSum -= ((float) hoursPerWeek) / 5;
+					if (i + 1 != diffInDays)
+						;// answer += currSum;
+					if (i + 1 != diffInDays)
+						;// answer += "],";
 				}
-
-				System.out.println("DEBUG - normal");
-				// date section
-				dateAsString = simpleDateFormat.format(date);
-				answer += "[";
-				answer += "'";
-				answer += dateAsString;
-				answer += "',";
-
-				// amount section
-				amount = resultSet.getFloat(2);
-				currSum += amount;
-				answer += currSum;
-				answer += "]";
-
-				prevDate = date;
 			}
+
+			System.out.println("DEBUG - normal");
+			// date section
+			dateAsString = simpleDateFormat.format(date);
+			answer += "[";
+			answer += "'";
+			answer += dateAsString;
+			answer += "',";
+
+			// amount section
+			amount = projectData.get(p).amount;
+			currSum += amount;
+			answer += currSum;
 			answer += "]";
 
-			resultSet.close();
-			statement.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
+			prevDate = date;
 		}
-		System.out.println(answer);
+		answer = putToday(answer, prevDate, currSum, hoursPerWeek, simpleDateFormat);
+		answer += "]";
+
+		System.out.println("For project [" + project + "] answer is ["+answer + "]");
 		if (answer.equals("[]"))// empty project
 			answer = "[['" + simpleDateFormat.format(new Date()) + "',0]]";
 
 		return answer;
 	}
+	
+	private String putToday(String currentAnswer, Date lastDate, float currSum,
+			int hoursPerWeek, SimpleDateFormat sdf) {
+		if(lastDate == null) return currentAnswer;
+		
+		
+		/**
+		 * jesli od lastDate minal przynajmniej jeden dzien dodaj sztuczny
+		 * element
+		 */
+		Date today = new Date();
+		long diffInDays = (today.getTime() - lastDate.getTime())
+				/ (1000 * 60 * 60 * 24);
 
-	// TODO: close connection
+		System.out.println("Last -> today: diff=" +diffInDays+ " substract " + ((float) (hoursPerWeek * diffInDays)) / 5);
+		if (diffInDays >= 1L) {
+			currentAnswer += ",['" + sdf.format(today) + "',"
+					+ (currSum - ((float) (hoursPerWeek * diffInDays)) / 5)
+					+ "]";
+		}
 
-	private String getUserInfo(String request) {
+		return currentAnswer;
+	}
+
+	/**
+	 * Metoda zwracająca odpowiedz na zapytanie o projekty uzytkownika
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private String getUserProjectsInfo(String request) {
 		String answer = null;
 		String user;
-		Statement statement;
 		int index = request.indexOf("=");
 		int userId = 0;
 		int a = 0, b = 0, c = 0;
 		user = request.substring(index + 1);
-		try {
-			statement = connection.createStatement();
-			ResultSet resultSet = statement
-					.executeQuery("select user_id from users where name like '"
-							+ user + "'");
-			while (resultSet.next()) {
-				userId = Integer.parseInt(resultSet.getString(1));
-				System.out.println("UserId= " + userId);
-			}
 
-			resultSet = statement
-					.executeQuery("SELECT COUNT(1) FROM projects WHERE owner_id="
-							+ userId + " AND priority like 'a'");
-			while (resultSet.next()) {
-				a = resultSet.getInt(1);
-				System.out.println("a count= " + a);
-			}
+		userId = databaseDG.getUserIdByName(connection, user);
 
-			resultSet = statement
-					.executeQuery("SELECT COUNT(1) FROM projects WHERE owner_id="
-							+ userId + " AND priority like 'b'");
-			while (resultSet.next()) {
-				b = resultSet.getInt(1);
-				System.out.println("b count= " + b);
-			}
+		a = databaseDG.getGoalCountByType(connection, userId, 'a');
+		b = databaseDG.getGoalCountByType(connection, userId, 'b');
+		c = databaseDG.getGoalCountByType(connection, userId, 'c');
 
-			resultSet = statement
-					.executeQuery("SELECT COUNT(1) FROM projects WHERE owner_id="
-							+ userId + " AND priority like 'c'");
-			while (resultSet.next()) {
-				c = resultSet.getInt(1);
-				System.out.println("c count= " + c);
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
 		answer = a + "," + b + "," + c;
+
 		return answer;
 	}
 
+	/**
+	 * Metoda zwracająca odpowiedz na zapytanie o projekty o danym typie
+	 * 
+	 * @param request
+	 * @return
+	 */
 	private String getGoalTypeProjects(String request) {
 		String answer = "";
-		Statement statement;
 		String projectName;
 		String user;
 		String type;
@@ -236,35 +226,26 @@ public class DatabaseUtil {
 		System.out.println("requested projects for user " + user + " of type "
 				+ type + ".");
 
-		try {
-			statement = connection.createStatement();
-			ResultSet resultSet = statement
-					.executeQuery("select user_id from users where name like '"
-							+ user + "'");
-			while (resultSet.next()) {
-				userId = Integer.parseInt(resultSet.getString(1));
-				System.out.println("UserId= " + userId);
-			}
+		userId = databaseDG.getUserIdByName(connection, user);
 
-			resultSet = statement
-					.executeQuery("select name from projects where owner_id = "
-							+ userId + "and priority like '" + type + "'" );
-			while (resultSet.next()) {
-				projectName = resultSet.getString(1);
-				if (!(answer.equals("")))
-					answer += ",";
-				answer += projectName;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
+		List<String> projects = new ArrayList<String>();
+
+		projects = databaseDG.getProjectsNamesByType(connection, userId,
+				type.charAt(0)); // TODO konieczna konwersja ze string do char
+									// ze wzgledu na BLEDNY typ zmiennej
+									// type(String) powinna byc (Char)
+
+		for (int i = 0; i < projects.size(); i++) {
+			projectName = projects.get(i);
+			if (!(answer.equals("")))
+				answer += ",";
+			answer += projectName;
 		}
 		return answer;
 	}
 
 	private String addEntry(String request) {
 		String answer = "";
-		Statement statement;
 		String user;
 		String project;
 		String amount;
@@ -283,38 +264,12 @@ public class DatabaseUtil {
 		System.out.println("Added entry for user " + user + " to project "
 				+ project + " and amount " + amount);
 
-		try {
-			statement = connection.createStatement();
-			ResultSet resultSet = statement
-					.executeQuery("select user_id from users where name like '"
-							+ user + "'");
-			while (resultSet.next()) {
-				userId = Integer.parseInt(resultSet.getString(1));
-				System.out.println("UserId= " + userId);
-			}
+		userId = databaseDG.getUserIdByName(connection, user);
+		projectId = databaseDG.getProjectIdByName(connection, project);
 
-			resultSet = statement
-					.executeQuery("select project_id from projects where name like '"
-							+ project + "'");
-			while (resultSet.next()) {
-				projectId = resultSet.getInt(1);
-				System.out.println("ProjectId= " + projectId);
-			}
+		databaseDG.addEntry(connection, projectId, Integer.parseInt(amount),
+				userId);
 
-			
-			String sqlStmt = "insert into entries (entry_id, project_id, amount, entry_date, owner_id)"
-							+ "values (entries_seq.nextval,"+projectId+","+amount+",?,"+userId+")";
-			
-			System.out.println(sqlStmt);
-			PreparedStatement pStmt = connection.prepareStatement(sqlStmt);
-			pStmt.setDate(1, new java.sql.Date((new Date()).getTime()));
-			pStmt.executeUpdate();
-			
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
 		return answer;
 	}
 }
