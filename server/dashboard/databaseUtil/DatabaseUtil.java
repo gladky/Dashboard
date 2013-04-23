@@ -157,6 +157,15 @@ public class DatabaseUtil {
 		return answer;
 	}
 	
+	/**
+	 * TODO: uwzglednic weekendy
+	 * @param currentAnswer
+	 * @param lastDate
+	 * @param currSum
+	 * @param hoursPerWeek
+	 * @param sdf
+	 * @return
+	 */
 	private String putToday(String currentAnswer, Date lastDate, float currSum,
 			int hoursPerWeek, SimpleDateFormat sdf) {
 		if(lastDate == null) return currentAnswer;
