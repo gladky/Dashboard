@@ -186,6 +186,10 @@ public class DatabaseUtil {
 
 		/** przechodź po każdym dniu od ostatniego wpisu do dzisiejszego dnia */
 		for (int i = 0; i < diffInDays; i++) {
+			
+
+			/** przejdź do kolejnego dnia */
+			cal.add(Calendar.DATE, 1);
 
 			/** sprawdź jaki to dzień tygodnia */
 			int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
@@ -196,8 +200,6 @@ public class DatabaseUtil {
 				arrears += ((float) hoursPerWeek / 5F);
 			}
 
-			/** przejdź do kolejnego dnia w zależności od iteratora */
-			cal.add(Calendar.DATE, 1 * (i + 1));
 		}
 		
 		
