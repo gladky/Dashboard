@@ -106,28 +106,20 @@ public class DatabaseUtil {
 			if (prevDate != null) {
 				diffInDays = (int) ((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
 				for (int i = 0; i < diffInDays; i++) {
-					if (i + 1 != diffInDays)
-						;// answer += "['";
+					
 					System.out.println("DEBUG - counting, diff=" + diffInDays
 							+ " curr i=" + i);
 					// TODO add date step
 					cal.setTime(prevDate);
 					cal.add(Calendar.DATE, 1 * (i + 1));
-					if (i + 1 != diffInDays)
-						;// answer +=
-							// simpleDateFormat.format(cal.getTime());
-					if (i + 1 != diffInDays)
-						;// answer += "',";
+					 	
 
 					// add amount step
 					int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
 					if (dayOfWeek != Calendar.SATURDAY
 							&& dayOfWeek != Calendar.SUNDAY)
 						currSum -= ((float) hoursPerWeek) / 5;
-					if (i + 1 != diffInDays)
-						;// answer += currSum;
-					if (i + 1 != diffInDays)
-						;// answer += "],";
+					
 				}
 			}
 
@@ -158,7 +150,6 @@ public class DatabaseUtil {
 	}
 	
 	/**
-	 * TODO: uwzglednic weekendy
 	 * @param currentAnswer
 	 * @param lastDate
 	 * @param currSum
@@ -178,11 +169,45 @@ public class DatabaseUtil {
 		Date today = new Date();
 		long diffInDays = (today.getTime() - lastDate.getTime())
 				/ (1000 * 60 * 60 * 24);
+	
+		/**
+		 * zmienna określająca aktualne zaległości w zależności od ostatniej
+		 * aktywności
+		 */
+		float arrears = 0;
 
-		System.out.println("Last -> today: diff=" +diffInDays+ " substract " + ((float) (hoursPerWeek * diffInDays)) / 5);
+		/**
+		 * stworzenie obiektu kalendarza umożliwiającego określenanie dni
+		 * tygodnia
+		 */
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(lastDate);
+
+		/** przechodź po każdym dniu od ostatniego wpisu do dzisiejszego dnia */
+		for (int i = 0; i < diffInDays; i++) {
+
+			/** sprawdź jaki to dzień tygodnia */
+			int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+
+			/** jeśli dzień tygodnia inny niż weekend */
+			if (dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY) {
+				/** dodaj do zaległości ilość pracy na dzień */
+				arrears += ((float) hoursPerWeek / 5F);
+			}
+
+			/** przejdź do kolejnego dnia w zależności od iteratora */
+			cal.add(Calendar.DATE, 1 * (i + 1));
+		}
+		
+		
+		
+		
+		System.out.println("Last -> today: diff=" +diffInDays+ " substract " + arrears);
+		
 		if (diffInDays >= 1L) {
 			currentAnswer += ",['" + sdf.format(today) + "',"
-					+ (currSum - ((float) (hoursPerWeek * diffInDays)) / 5)
+					+ (currSum - arrears)
 					+ "]";
 		}
 
