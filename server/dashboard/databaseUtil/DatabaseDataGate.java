@@ -150,23 +150,25 @@ public class DatabaseDataGate {
 		ProjectInfoWithNameAndHPW projectInfo = null;
 		int projectId = 0;
 		int hoursPerWeek = 0;
+		boolean activeWeekend = false;
 		try {
 
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement
-					.executeQuery("select project_id, hours_per_week from projects where name like '"
+					.executeQuery("select project_id, hours_per_week, active_weekend from projects where name like '"
 							+ project + "'");
 
 			while (resultSet.next()) {
 				projectId = Integer.parseInt(resultSet.getString(1));
 				hoursPerWeek = resultSet.getInt(2);
+				activeWeekend = (resultSet.getString(3).charAt(0) == 'y' ? true : false);
 				System.out.println("ProjectId= " + projectId + " hoursPerWeek "
 						+ hoursPerWeek);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		projectInfo = new ProjectInfoWithNameAndHPW(projectId, hoursPerWeek);
+		projectInfo = new ProjectInfoWithNameAndHPW(projectId, hoursPerWeek, activeWeekend);
 		return projectInfo;
 	}
 

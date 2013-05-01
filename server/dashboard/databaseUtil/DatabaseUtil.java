@@ -65,8 +65,13 @@ public class DatabaseUtil {
 		return answer;
 	}
 
+	/**
+	 * Metoda zwracająca wykres na podstawie zapytania 'request'
+	 * request = user#project
+	 * @param request
+	 * @return
+	 */
 	private String getChart(String request) {
-		Statement statement;
 		int index = request.indexOf("#");
 		String user;
 		String project;
@@ -76,6 +81,7 @@ public class DatabaseUtil {
 		System.out.println("Requested user= " + user + ", project= " + project);
 
 		int userId = 0, projectId = 0, hoursPerWeek = 0;
+		boolean activeWeekend = false;
 		String answer = "[";
 
 		Date date;
@@ -88,6 +94,7 @@ public class DatabaseUtil {
 
 		projectId = projectInfo.projectId;
 		hoursPerWeek = projectInfo.HPW;
+		activeWeekend = projectInfo.activeWeekend;
 
 		List<ProjectDataWithDateAndAmount> projectData = databaseDG
 				.getProjectDataWithDateAndAmount(connection, userId, projectId);
@@ -116,9 +123,12 @@ public class DatabaseUtil {
 
 					// add amount step
 					int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-					if (dayOfWeek != Calendar.SATURDAY
-							&& dayOfWeek != Calendar.SUNDAY)
-						currSum -= ((float) hoursPerWeek) / 5;
+					
+					/**
+					 * (jesli aktywny weekend) lub ()
+					 */
+					if (activeWeekend || (dayOfWeek != Calendar.SATURDAY	&& dayOfWeek != Calendar.SUNDAY))
+						currSum -= ((float) hoursPerWeek) / (activeWeekend == true ? 7: 5);
 					
 				}
 			}
