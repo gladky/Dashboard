@@ -14,6 +14,7 @@
 <body>
 
 <div class="main">
+<?php include("includes/horizontal-menu.php"); ?>
 <div class="header">Dashboard</div>
 	<p class="text-header">Cel projektu</p>
 	<p class="simple-text">Projekt stworzony by poprawić systematyczność. Poprzez prezentacje wszystkich prowadzonych przez użytkownika projektów pomaga zapanować nad całością.</p>

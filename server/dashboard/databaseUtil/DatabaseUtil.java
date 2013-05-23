@@ -290,31 +290,47 @@ public class DatabaseUtil {
 		return answer;
 	}
 
-	private String addEntry(String request) {
+	private String addEntry(String request){
 		String answer = "";
 		String user;
 		String project;
 		String amount;
+		String dateCorrectionString;
 
 		int userId = 0;
 		int projectId = 0;
+		int dateCorrection;
 
 		int index = request.indexOf("=");
 		int index2 = request.indexOf("@");
 		int index3 = request.indexOf("$");
+		int index4 = request.indexOf("^");
 
 		user = request.substring(index + 1, index2);
 		project = request.substring(index2 + 1, index3);
-		amount = request.substring(index3 + 1);
-
-		System.out.println("Added entry for user " + user + " to project "
-				+ project + " and amount " + amount);
+		amount = request.substring(index3 + 1, index4);
+		dateCorrectionString = request.substring(index4+1);
+		
+		if(dateCorrectionString.equals("")){
+			dateCorrection = 0;
+		}
+		else {
+			dateCorrection = Integer.parseInt(dateCorrectionString);	
+		}
+		
 
 		userId = databaseDG.getUserIdByName(connection, user);
 		projectId = databaseDG.getProjectIdByName(connection, project);
 
-		databaseDG.addEntry(connection, projectId, Integer.parseInt(amount),
-				userId);
+		try {
+			databaseDG.addEntry(connection, projectId, Float.parseFloat(amount),
+					userId, dateCorrection);
+			answer = "Added entry for user " + user + " to project "
+					+ project + " and amount " + amount;
+		} catch (NumberFormatException | SQLException e) {
+			answer = "Error adding entry";
+			e.printStackTrace();
+		}
 
 		return answer;
 	}

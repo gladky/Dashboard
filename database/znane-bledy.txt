@@ -1,0 +1,14 @@
+ZNANE BLEDY{
+
+	{
+		PROBLEM
+		-listener could not hand off client connection
+		
+		ROZWIAZANIE
+		-należy zrestartować listener
+		
+		POLECENIA KONSOLI
+		>>lsnrctl start
+		>>lsnrctl stop
+	}
+}

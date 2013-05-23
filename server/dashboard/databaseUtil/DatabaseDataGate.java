@@ -122,22 +122,64 @@ public class DatabaseDataGate {
 		return projects;
 	}
 
-	public void addEntry(Connection connection, int projectId, int amount,
-			int userId) {
+	/**
+	 * Dodaj wpis do bazy danych - jeśli istnieje inkrementuj
+	 * @throws SQLException 
+	 */
+	public void addEntry(Connection connection, int projectId, float amount,
+			int userId, int dateCorrection) throws SQLException {
 
-		String sqlStmt = "insert into entries (entry_id, project_id, amount, entry_date, owner_id)"
-				+ "values (entries_seq.nextval,"
-				+ projectId
-				+ ","
-				+ amount
-				+ ",?," + userId + ")";
+		/** zmienne pomocnicze */
+		String sqlStmt, initStmt, checkAmountStmt;
+		int numberOfEntries = 0;
+		float currAmount = 0F;
+		int dateCorrectionMils = dateCorrection *1000*60*60*24;
+		
+		/** sprawdzenie czy istnieje juz wpis tego dnia dla konkretnego projektu i izutkownika*/
+		initStmt = "SELECT COUNT(1) FROM entries WHERE owner_id="
+				+ userId + " AND project_id =" + projectId + " AND entry_date like ?";
+		PreparedStatement pInitStmt = connection.prepareStatement(initStmt);
+		pInitStmt.setDate(1, new java.sql.Date((new Date()).getTime() - dateCorrectionMils));
+		ResultSet resultSet = pInitStmt.executeQuery();
+		while (resultSet.next()) {
+			numberOfEntries = resultSet.getInt(1);
+		}
+		
+		/** jesli nie istnieje  - dodaj nowy wpis*/
+		if(numberOfEntries == 0){
+			System.out.println("Dodanie");
+			sqlStmt = "insert into entries (entry_id, project_id, amount, entry_date, owner_id)"
+					+ "values (entries_seq.nextval,"
+					+ projectId
+					+ ","
+					+ amount
+					+ ",?," + userId + ")";
+		}
+		
+		/** jesli istnieje wpis - etytuj (inkrementuj) wpis */
+		else {
+			
+			/** pobrac obecna liczbe */
+			checkAmountStmt = "SELECT amount FROM entries WHERE owner_id="
+					+ userId + " AND project_id =" + projectId + " AND entry_date like ?";
+			PreparedStatement pCheckAmountStmt = connection.prepareStatement(checkAmountStmt);
+			pCheckAmountStmt.setDate(1, new java.sql.Date((new Date()).getTime()- dateCorrectionMils));
+			ResultSet amountResultSet = pCheckAmountStmt.executeQuery();
+			while (amountResultSet.next()) {
+				currAmount = amountResultSet.getFloat(1);
+			}
+			
+			System.out.println("Edycja");
+			sqlStmt = "update entries set amount = "+ (((float)currAmount) + amount) +" where project_id = "+
+					projectId+" and entry_date = ? and owner_id = "+ userId;
+			}
 
 		System.out.println(sqlStmt);
 		PreparedStatement pStmt;
 		try {
 			pStmt = connection.prepareStatement(sqlStmt);
 
-			pStmt.setDate(1, new java.sql.Date((new Date()).getTime()));
+			pStmt.setDate(1, new java.sql.Date((new Date()).getTime()- dateCorrectionMils));
 			pStmt.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

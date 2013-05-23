@@ -28,6 +28,7 @@
 
 
 <div class="main">
+<?php include("includes/horizontal-menu.php"); ?>
 	<div class="index-section">
 		<div class="goal-type-header">Index</div>
 			<div class="index-element">

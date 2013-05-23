@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+d<!DOCTYPE html>
 
 <html>
 <head>
@@ -14,11 +14,15 @@
 <body>
 
 <div class="main">
+
+<?php include("includes/horizontal-menu.php"); ?>
 <div class="header">Dashboard</div>
-<form name="input" action="add_entry.php" method="get">
-Użytkownik: <input type="text" name="user">
-Projekt: <input type="text" name="project">
-Ilosc: <input type="text" name="amount">
+<form name="input" action="add_entry.php" method="get" class="round-style">
+<h3>Dodaj wpis</h3>
+użytkownik:</br> <input type="text" name="user"></br>
+projekt: </br><input type="text" name="project"></br>
+ilosc: </br><input type="text" name="amount"></br>
+korekcja daty: </br><input type="text" name="data"></br></br>
 <input type="submit" value="Submit">
 </form>
 	
