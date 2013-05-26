@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 
-<?php include("includes/session-handler.php");?>
 <html>
 <head>
 
-    <title>Dashboard</title>
+    <title>Dashboard login</title>
     <link class="include" rel="stylesheet" type="text/css" href="jquery.jqplot.min.css" />
   
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="../excanvas.js"></script><![endif]-->
@@ -15,15 +14,12 @@
 <body>
 
 <div class="main">
-
 <?php include("includes/horizontal-menu.php"); ?>
-<div class="header">Dashboard</div>
-<form name="input" action="add_entry.php" method="get" class="round-style">
-<h3>Dodaj wpis</h3>
+<div class="header">Login</div>
+<form name="input" action="login_process.php" method="get" class="round-style">
+<h3>Zaloguj się</h3>
 użytkownik:</br> <input type="text" name="user"></br>
-projekt: </br><input type="text" name="project"></br>
-ilosc: </br><input type="text" name="amount"></br>
-korekcja daty: </br><input type="text" name="data"></br></br>
+hasło: </br><input type="password" name="password"></br></br>
 <input type="submit" value="Submit">
 </form>
 	

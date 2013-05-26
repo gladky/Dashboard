@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+<?php include("includes/session-handler.php");?>
 <html>
 <head>
    <title>Dashboard</title>
@@ -120,6 +122,7 @@
 </div>
 
 <?php
+	socket_shutdown($socket);
 	socket_close($socket);
 ?>
 

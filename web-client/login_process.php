@@ -1,10 +1,23 @@
 <!DOCTYPE html>
+<?php 
 
-<?php include("includes/session-handler.php");?>
+$user = $_GET["user"];
+$password = $_GET["password"];
+
+
+
+$wygasniecie = time() + 120;
+$cookie_domain = "127.0.0.1";
+
+setcookie('dashboard_user', $user, $wygasniecie, "/Dashboard", $cookie_domain);
+
+header("Location: index.php");
+?>
+
 <html>
 <head>
 
-    <title>Dashboard</title>
+    <title>Dashboard login</title>
     <link class="include" rel="stylesheet" type="text/css" href="jquery.jqplot.min.css" />
   
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="../excanvas.js"></script><![endif]-->
@@ -15,17 +28,7 @@
 <body>
 
 <div class="main">
-
-<?php include("includes/horizontal-menu.php"); ?>
-<div class="header">Dashboard</div>
-<form name="input" action="add_entry.php" method="get" class="round-style">
-<h3>Dodaj wpis</h3>
-użytkownik:</br> <input type="text" name="user"></br>
-projekt: </br><input type="text" name="project"></br>
-ilosc: </br><input type="text" name="amount"></br>
-korekcja daty: </br><input type="text" name="data"></br></br>
-<input type="submit" value="Submit">
-</form>
+processing request
 	
 </div>
 
