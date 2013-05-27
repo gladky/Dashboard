@@ -12,13 +12,9 @@
 </head>
 <body>
 <?php
-		$address = "localhost";  
-		$port = "6789";   
-		$socket = socket_create(AF_INET, SOCK_STREAM, getprotobyname('tcp'));
-		socket_connect($socket, $address, $port);
-		$greetings = socket_read($socket, 256, PHP_NORMAL_READ);
+		include ("includes/connect-create-socket.php");
 		
-		socket_write($socket, "getUserInfo=gladky\n", 256);
+		socket_write($socket, "getUserInfo=".$user."\n", 256);
 		$userInfo = socket_read($socket, 256, PHP_NORMAL_READ);
 		$typesCount[0] = 0;
 		$typesCount[1] = 0;
@@ -42,7 +38,7 @@
 		
 		<?php
 			// getting info about a-type goals and generating appropriate html
-			socket_write($socket, "getGoalTypeInfo=gladky^a\n", 256);
+			socket_write($socket, "getGoalTypeInfo=".$user."^a\n", 256);
 			$projectNamesInfo = socket_read($socket, 256, PHP_NORMAL_READ);
 			
 			$projectNames = explode(",", $projectNamesInfo);
@@ -70,7 +66,7 @@
 		<div class="goal-type-header">B-type gols</div>
 		<?php
 			// getting info about a-type goals and generating appropriate html
-			socket_write($socket, "getGoalTypeInfo=gladky^b\n", 256);
+			socket_write($socket, "getGoalTypeInfo=".$user."^b\n", 256);
 			$projectNamesInfo = socket_read($socket, 256, PHP_NORMAL_READ);
 			
 			$projectNames = explode(",", $projectNamesInfo);
@@ -96,7 +92,7 @@
 		<div class="goal-type-header">C-type gols</div>
 		<?php
 			// getting info about a-type goals and generating appropriate html
-			socket_write($socket, "getGoalTypeInfo=gladky^c\n", 256);
+			socket_write($socket, "getGoalTypeInfo=".$user."^c\n", 256);
 			$projectNamesInfo = socket_read($socket, 256, PHP_NORMAL_READ);
 			
 			$projectNames = explode(",", $projectNamesInfo);

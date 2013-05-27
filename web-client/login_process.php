@@ -4,14 +4,26 @@
 $user = $_GET["user"];
 $password = $_GET["password"];
 
+// sprawdz uzytkownika
+include("includes/connect-create-socket.php");
+socket_write($socket, "loginUser=".$user.":".$password."\n", 256);
+$result = socket_read($socket, 256, PHP_NORMAL_READ);
 
+	//jesli zgadza sie zaloguj
+		if(trim($result) == "OK"){
 
-$wygasniecie = time() + 120;
-$cookie_domain = "127.0.0.1";
+		$wygasniecie = time() + 120;
+		$cookie_domain = "127.0.0.1";
 
-setcookie('dashboard_user', $user, $wygasniecie, "/Dashboard", $cookie_domain);
+		setcookie('dashboard_user', $user, $wygasniecie, "/Dashboard", $cookie_domain);
 
-header("Location: index.php");
+		header("Location: index.php");
+		}
+		else {
+		header("Location: login.php?message=ERR");
+		}
+
+	//jesli nie zgadza sie powroc do strony logowania
 ?>
 
 <html>
